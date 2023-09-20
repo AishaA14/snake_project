@@ -1,199 +1,143 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const gameBoard = document.querySelector('.game-board');
+    const cellSize = 20; // Adjust cell size to match CSS
+    let snakeHeadPosition = { x: 10, y: 10 }; // Initial position of the snake's head
+    let snakeDirection = 'right'; // Initial direction
+    let foodPosition = { x: 5, y: 5 }; // Initial position of the food
+    let isGameRunning = false; // Flag to control the game state
+    let snakeBody = []; // Array to store the snake's body segments
 
-
-// STATE VARIABLES
-
-//initialize the grid as a 2d array
-const gameBoard = document.querySelector('.game-board')
-const gridSize = 20 // defines the size of the grid
-const grid = [] // empty array represents the grid
-
-// use a for loop to create the game board
-// iterate over the rows, loop continues until row is less than 20
-
-for (let row = 0; row < gridSize; row++) {
-    const rowArray = [] // empty array to represent row, hold the cells for that row
-    for (let col = 0; col < gridSize; col++) {
-        const cell = document.createElement('div') // represents single cell in grid
-        cell.classList.add('cell')
-        gameBoard.appendChild(cell) // append the div to the game board
-        rowArray.push('cell') //push the div into the row array
+    // Function to create and render the snake's head
+    function renderSnakeHead() {
+        const snakeHead = document.createElement('div');
+        snakeHead.classList.add('cell', 'snake-head');
+        snakeHead.style.gridColumn = snakeHeadPosition.x;
+        snakeHead.style.gridRow = snakeHeadPosition.y;
+        gameBoard.appendChild(snakeHead);
     }
-    grid.push(rowArray) // push the row array into the grid
+    
+    renderSnakeHead();
+
+     // Function to create and render the food
+    function renderFood() {
+    const food = document.createElement('div');
+    food.classList.add('cell', 'food'); // Add the 'food' class for styling
+    food.style.gridColumn = foodPosition.x;
+    food.style.gridRow = foodPosition.y;
+    gameBoard.appendChild(food);
+}
+        renderFood();
+
+   // Function to generate a random position for the food
+   function getRandomPosition() {
+    const maxX = Math.floor(gameBoard.clientWidth / cellSize);
+    const maxY = Math.floor(gameBoard.clientHeight / cellSize);
+
+    const newX = Math.floor(Math.random() * maxX) + 1; // Add 1 to avoid position 0
+    const newY = Math.floor(Math.random() * maxY) + 1; // Add 1 to avoid position 0
+
+    return `${newX} / ${newY}`;
 }
 
+   // Function to update the snake's position based on its direction
+   function updateSnakePosition() {
 
-const snake = {
-    body: [{x: 10, y: 10}],
-    direction: 'right',
-    length: 1,
-}
-
-// Create the snake's head element
-const snakeHead = document.createElement('div');
-snakeHead.classList.add('snake-head');
-// Set the initial position 
-snakeHead.style.gridColumn = '10';
-snakeHead.style.gridRow = '10';
-gameBoard.appendChild(snakeHead);
-
-// Create the initial body segment
-const snakeBodySegment = document.createElement('div');
-snakeBodySegment.classList.add('snake-body');
-// Set the initial position (for example, x: 4, y: 5)
-snakeBodySegment.style.gridColumn = '11';
-snakeBodySegment.style.gridRow = '11';
-gameBoard.appendChild(snakeBodySegment);
-
-
-const food = {
-    x: 0,
-    y: 0,
-}
-
-
-// Create the food element
-const foodElement = document.createElement('div');
-foodElement.classList.add('food');
-// Set the initial position (for example, x: 8, y: 8)
-foodElement.style.gridColumn = '8';
-foodElement.style.gridRow = '8';
-gameBoard.appendChild(foodElement);
-
-
-// FUNCTIONS
-
-// function to render snake
-function renderSnake() {
-    const snakeBody = snake.body;
-
-    // Clear previous snake classes from the game board
-    for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-            const cell = grid[row][col];
-            cell.classList.remove('snake-head', 'snake-body');
-        }
-    }
-    // Apply snake classes to the new positions
-    for (let i = 0; i < snakeBody.length; i++) {
-        const { x, y } = snakeBody[i];
-        const cell = grid[y][x];
-
-        if (i === 0) {
-            cell.classList.add('snake-head');
-        } else {
-            cell.classList.add('snake-body');
-        }
-    }
-}
-
-
-// move snake
-function moveSnake() {
-    //update the snake's position based on the direction
-    const head = snake.body[0]
-
-    switch (snake.direction) {
+    switch (snakeDirection) {
         case 'left':
-            head.x -= 1
-            break
+            snakeHeadPosition.x--;
+            break;
+        case 'up':
+            snakeHeadPosition.y--;
+            break;
+        case 'right':
+            snakeHeadPosition.x++;
+            break;
+        case 'down':
+            snakeHeadPosition.y++;
+            break;
+    }
+
+    // Update the snake's head position on the grid
+    const snakeHead = document.querySelector('.snake-head');
+    snakeHead.style.gridColumn = snakeHeadPosition.x;
+    snakeHead.style.gridRow = snakeHeadPosition.y;
+
+     // Check for collision with food
+     if (snakeHeadPosition.x === foodPosition.x && snakeHeadPosition.y === foodPosition.y) {
+        // Remove the food element
+        const food = document.querySelector('.food');
+        food.parentNode.removeChild(food);
+
+        // Generate a new position for the food
+        foodPosition = getRandomPosition();
+        
+        // Increase the snake's length by adding a new body segment
+        const newBodySegment = document.createElement('div');
+        newBodySegment.classList.add('cell', 'snake-body'); // Add the 'snake-body' class for styling
+    
+        // Calculate the position for the new body segment based on the direction
+        let newSegmentPosition = { x: snakeHeadPosition.x, y: snakeHeadPosition.y };
+        switch (snakeDirection) {
+            case 'left':
+                newSegmentPosition.x++;
+                break;
+            case 'up':
+                newSegmentPosition.y++;
+                break;
             case 'right':
-                head.x += 1
-                case 'up':
-                    head.y -= 1
-                    break
-                    case 'down':
-                        head.y += 1
-                        break
+                newSegmentPosition.x--;
+                break;
+            case 'down':
+                newSegmentPosition.y--;
+                break;
+        }
+    
+        // Update the new body segment's position
+        newBodySegment.style.gridColumn = newSegmentPosition.x;
+        newBodySegment.style.gridRow = newSegmentPosition.y;
+    
+        // Add the new segment to the snake's body
+        snakeBody.push(newSegmentPosition);
+    
+        // Append the new body segment to the game board
+        gameBoard.appendChild(newBodySegment);
     }
+    
 }
-
-
-
-// create a function to randomly place the food on the game board
-function placeFood() {
-    food.x = Math.floor(Math.random() * gridSize)
-    food.y = Math.floor(Math.random() * gridSize)
-
-    // calculate pixel coordinates for the food element
-
-    const foodElement = document.getElementById('food')
-    const cellWidth = gameBoard.clientHeight / gridSize // cell width is calculated by dividing the width of the game board by the number of columns in the grid
-    const cellHeight = gameBoard.clientHeight / gridSize
-    foodElement.style.left = food.x * cellWidth + 'px' //sets the left css property of the food element to position it horizontally within the game board. calculated left position based on the food.x coordinate
-    foodElement.style.top =food.y * cellHeight + 'px'
-
-    // show the food
-
-    foodElement.style.display = 'block'
-
-
-    //implement additional logic to make sure food is not generated in the same position as the snake
-}
-
-function clearGameBoard() {
-    const cells = gameBoard.querySelectorAll('.cell')
-    cells.forEach(cell => {
-        cell.classList.remove('snake-body')
-    })
-}
-
-function gameLoop() {
-
-moveSnake()
-
-// render snake on the game board
-   renderSnake() 
-
-// set timeout is a built in js function. Allows you to schedule a function to be executed after a specified delay in ms.
-   setTimeout(gameLoop, gameSpeed)
-}
-
-// function to get the opposite direction
-function getOppositeDirection(direction) {
-    const opposites = {
-        left: 'right',
-        right: 'left',
-        up: 'down',
-        down: 'up',
-    }
-    return opposites[direction] || direction
-}
-
-
-// EVENT LISTENERS
-
-document.addEventListener('keydown', (event) => {
-    const keyName = event.key
-
-    //map key names to snake directions
-const directionMap = {
-    ArrowLeft: 'left',
-    ArrowRight: 'right',
-    ArrowUp: 'up',
-    ArrowDown: 'down',
-}
-//check if the key name is in the direction map
-if (directionMap.hasOwnProperty(keyName)) {
-    const newDirection = directionMap[keyName]
-    //set snake direction to mapped direction
-    if (snake.direction !== getOppositeDirection(newDirection)) {
-        snake.direction = newDirection
+/// end of function
+   
+      // Function to start the game loop
+      function startGame() {
+        if (!isGameRunning) {
+            isGameRunning = true;
+            setInterval(updateSnakePosition, 200); // Adjust the interval as needed (in milliseconds)
         }
     }
-})
 
-// CALL THE FUNCTIONS
-gameLoop()
-placeFood()
+   // Event listener for arrow key presses to change the snake's direction and start the game
+   document.addEventListener('keydown', (event) => {
+    if (!isGameRunning) {
+        startGame();
+    }
 
-
+    switch (event.key) {
+        case 'ArrowLeft':
+            snakeDirection = 'left';
+            break;
+        case 'ArrowUp':
+            snakeDirection = 'up';
+            break;
+        case 'ArrowRight':
+            snakeDirection = 'right';
+            break;
+        case 'ArrowDown':
+            snakeDirection = 'down';
+            break;
+    }
 });
-
-
-
-//cached elements
-
-
-
-
+   
+   
+   
+   
+  
+});
