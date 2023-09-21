@@ -8,8 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let activeDirection = "right"; // store the current direction
     const snakeSpeed = 200;
     let gameStarted = false; // Indicates if the game has started
+    let paused = false;
+    let gameOver = false;
     
-    // create the game grid
+    //* create the game grid
     const createGrid = (dimension=[5,5]) =>{
         const grid = []
         for (let row = 0; row < dimension[0]; row ++){
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return grid
     }
 
-    // render the game board
+    //* render the game board
     const renderGameBoard = (gridDimension, grid) => {
         
         // remove game board and re-render on every move
@@ -52,28 +54,31 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     }
 
-    // update the grid with the food position
+    //* update the grid with the food position
     const updateFoodPosition = (foodPosition) =>{
         grid[foodPosition[0]][foodPosition[1]] = 2
         return grid
     }
 
-    // detect collision with food
-    const snakeHasFoundFood = (snakePosition, foodPosition) =>{
+    //* detect collision with food
+    const snakeHasFoundFood = (snakePosition, foodPosition) => {
         return (
             snakePosition[0] == foodPosition[0] &&
             snakePosition[1] == foodPosition[1]
         )
     }
 
-    // update snake length when it finds food
-    const updateSnakeLength = (snakePosition) =>{
-        console.log(snakePosition)
+    //* update snake length when it finds food
+    const updateSnakeLength = (snakePosition) => {
+        // console.log(snakePosition)
         grid[snakePosition[0]][snakePosition[1]] = 1
         snakeBody.push(snakePosition)
+         // Play the sound when the snake eats food
+        const eatSound = document.getElementById("eatSound");
+        eatSound.play();
     }
 
-    // generate the position for the food
+    //* generate the position for the food
     // check for the available positions were the snakes body is not present
     const generateNewFoodPosition = () =>{
         const availableLocations = []
@@ -88,34 +93,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return availableLocations[randomSelection]
     }    
 
-    // update snake position
+    //* update snake position
     const updateSnakePosition = (newBody, currentSnakeLength) => {
         const selfCollision = snakeBody.filter((coord) => coord[0] === newBody[0] && coord[1] === newBody[1]);
     
         if (selfCollision.length >= 1 || newBody[0] < 0 || newBody[0] > gridDimension[0] - 1 || newBody[1] < 0 || newBody[1] > gridDimension[1] - 1) {
             displayGameOverModal();
-            return;
+
+            // Play the wall collision sound
+        const wallCollisionSound = document.getElementById("wallCollisionSound");
+        wallCollisionSound.play();
+
+        return;
         }
-        // detect snake collision with itself
-
-        
-        if (selfCollision.length >= 1){
-            alert ("oops you ate yourself... game over.")
-            window.location.reload();
-            return;
-        }        
-
-        if (newBody[0] < 0 || newBody[0] > gridDimension[0]-1){
-            alert("cannot leave game space.. game over.")
-            window.location.reload();
-        }
-
-        if (newBody[1] < 0 || newBody[1] > gridDimension[1]-1){
-            alert("cannot leave game space.. game over.")
-            window.location.reload();
-        }        
-
-        console.log("before update", snakeBody)
         snakeBody.splice(0,0,newBody)
         
         const updatedSnakePosition = snakeBody.slice(0,currentSnakeLength)
@@ -124,15 +114,29 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         
         const discardedSnakePosition = snakeBody.slice(currentSnakeLength,)
-        console.log("snake body part to remove", discardedSnakePosition)
+        // console.log("snake body part to remove", discardedSnakePosition)
         discardedSnakePosition.forEach((coord)=>{
             grid[coord[0]][coord[1]] = 0
         })
         
         snakeBody = updatedSnakePosition
-        console.log("after update", snakeBody)
+        
     }
 
+    //* Function to display the instructions modal
+    function displayInstructionsModal() {
+        const modal = document.getElementById("instructions-modal");
+        modal.style.display = "block";
+
+        const startGameButton = document.getElementById("start-game-button");
+        startGameButton.addEventListener("click", () => {
+            modal.style.display = "none"; // Hide the modal
+            // startGame(); // Start the game
+        });
+    }
+
+    //* Display the instructions modal when the page loads
+    displayInstructionsModal();
     function displayGameOverModal() {
         const modal = document.getElementById("game-over-modal");
         modal.style.display = "block";
@@ -151,12 +155,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // update score of the game
+    // * update score of the game
+
     const updateScore = (score) =>{
         parseInt(document.getElementById("current-score").innerHTML=
         `Current score is: ${score}`)
     }
-    // Update high score element
+
+    //* Update high score element
 
         // Initialize high score from local storage
     let highScore = parseInt(localStorage.getItem('highScore')) || 0;
@@ -167,12 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
    
 
-    // STARTING THE GAME //
+    //* STARTING THE GAME //
     grid = createGrid(gridDimension) // create game grid
-    console.log(grid);
+    // console.log(grid);
     
     updateSnakePosition([4,4], 1) //initialize snake position
-    console.log([4,4])
+    // console.log([4,4])
 
     foodPosition = generateNewFoodPosition(gridDimension) // get new food position
     updateFoodPosition(foodPosition) // initialize food position
@@ -180,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
     renderGameBoard(gridDimension, grid) // render the game and characters on screen
     updateScore(score) // initialize score
 
-    // this function manages the game state.
+    //* manages the game state.
     const manageGameState = (newHeadPositionOfSnake) =>{
 
         const lastKnownPosition = snakeBody.at(-1)
@@ -192,12 +198,35 @@ document.addEventListener('DOMContentLoaded', function() {
             updateFoodPosition(foodPosition)
             updateScore(score+=1)
         }
-        console.log(grid)
+        // console.log(grid)
         renderGameBoard(gridDimension, grid)      
     }
 
-    // Monitor snake movement.
+    //* Function to toggle the game state (pause/resume)
+    function toggleGamePause() {
+        paused = !paused; // Toggle the paused state
+
+        if (paused) {
+            clearInterval(snakeMovementInterval); // Pause the game loop
+        } else {
+            // Resume the game loop
+            snakeMovementInterval = setInterval(moveSnake, snakeSpeed);
+        }
+    }
+    function togglePausedModal(paused) {
+        const pausedModal = document.getElementById("paused-modal");
+        pausedModal.style.display = paused ? "block" : "none";
+    }
+
+    //* Monitor snake movement.
     function moveSnake() {
+        if (paused) {
+            togglePausedModal(true); // Display "Paused" pop-up when paused
+            return; // Stop moving if the game is paused
+        } else {
+            togglePausedModal(false); // Hide "Paused" pop-up when resumed
+        }
+
         if (!gameStarted) {
             return; // Stop moving if the game hasn't started yet
         }
@@ -224,11 +253,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call moveSnake function every specified interval (snakeSpeed)
     const snakeMovementInterval = setInterval(moveSnake, snakeSpeed);
 
-    // Start the game when any arrow key is pressed
+    //* Start the game when any arrow key is pressed
     document.addEventListener("keydown", (e) => {
         if (!gameStarted) {
             gameStarted = true; // Set the game as started
         }
+        if (!gameOver) {
         if (e.key === "ArrowUp" && activeDirection !== "down") {
             activeDirection = "up";
         } else if (e.key === "ArrowDown" && activeDirection !== "up") {
@@ -237,6 +267,10 @@ document.addEventListener('DOMContentLoaded', function() {
             activeDirection = "left";
         } else if (e.key === "ArrowRight" && activeDirection !== "left") {
             activeDirection = "right";
+        }
+        if (e.key === " ") { // Check if the space bar is pressed
+            toggleGamePause(); // Toggle the game pause/resume
+        }
         }
     });
 

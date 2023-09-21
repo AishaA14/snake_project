@@ -29,17 +29,39 @@
     <title>Snake</title>
 </head>
 <body>
-        <div class="score">
-            <div id="current-score">Current Score: 0</div>
-            <div id="high-score">High Score:</div>
-        </div>
-    <div id="game-board"></div>
-    <div id="game-over-modal" class="modal">
+    <header>SNAKE</header>
+    <div id="instructions-modal" class="modal">
         <div class="modal-content">
-          <h2>Game Over</h2>
-          <button id="restart-button">Play Again</button>
+            <h2>Welcome to Snake!</h2>
+            <p>Use arrow keys to control the snake. Eat the food to grow and score points. Avoid running into the walls or yourself.</p>
+            <button id="start-game-button">Play</button>
+            
         </div>
+    </div>
+    <div id="game-board"></div>
+
+    <div class="score">
+         <div id="current-score">Current Score: 0</div>
+         <div id="high-score">High Score:</div>
+    </div>
+ 
+    <div id="game-over-modal" class="modal">
+            <div class="modal-content">
+            <h2>Game Over</h2>
+            <button id="restart-button">Play Again</button>
+            </div>
       </div>
-</body>
+      <div id="paused-modal" class="modal">
+            <div class="modal-content">
+                <h2>Paused</h2>
+                <p>The game is paused. Press the space bar to resume.</p>
+            </div>
+    </div>
+    <audio id="eatSound" src="./audio/food.mp3" volume="0.5"></audio>
+    <audio id="wallCollisionSound" src="./audio/wallcollision.mp3"></audio>
+    <audio id="backgroundmusic" src="./audio/BGMusic.mp3"></audio>
+
 <script src="./js/snake.js"></script>
+</body>
+
 </html> 
