@@ -1,143 +1,243 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const gameBoard = document.querySelector('.game-board');
-    const cellSize = 20; // Adjust cell size to match CSS
-    let snakeHeadPosition = { x: 10, y: 10 }; // Initial position of the snake's head
-    let snakeDirection = 'right'; // Initial direction
-    let foodPosition = { x: 5, y: 5 }; // Initial position of the food
-    let isGameRunning = false; // Flag to control the game state
-    let snakeBody = []; // Array to store the snake's body segments
+document.addEventListener('DOMContentLoaded', function() {
 
-    // Function to create and render the snake's head
-    function renderSnakeHead() {
-        const snakeHead = document.createElement('div');
-        snakeHead.classList.add('cell', 'snake-head');
-        snakeHead.style.gridColumn = snakeHeadPosition.x;
-        snakeHead.style.gridRow = snakeHeadPosition.y;
-        gameBoard.appendChild(snakeHead);
-    }
+    let score = 0;
+    let grid = []
+    let foodPosition;
+    let snakeBody= []
+    let gridDimension = [20,20]
+    let activeDirection = "right"; // store the current direction
+    const snakeSpeed = 200;
+    let gameStarted = false; // Indicates if the game has started
     
-    renderSnakeHead();
-
-     // Function to create and render the food
-    function renderFood() {
-    const food = document.createElement('div');
-    food.classList.add('cell', 'food'); // Add the 'food' class for styling
-    food.style.gridColumn = foodPosition.x;
-    food.style.gridRow = foodPosition.y;
-    gameBoard.appendChild(food);
-}
-        renderFood();
-
-   // Function to generate a random position for the food
-   function getRandomPosition() {
-    const maxX = Math.floor(gameBoard.clientWidth / cellSize);
-    const maxY = Math.floor(gameBoard.clientHeight / cellSize);
-
-    const newX = Math.floor(Math.random() * maxX) + 1; // Add 1 to avoid position 0
-    const newY = Math.floor(Math.random() * maxY) + 1; // Add 1 to avoid position 0
-
-    return `${newX} / ${newY}`;
-}
-
-   // Function to update the snake's position based on its direction
-   function updateSnakePosition() {
-
-    switch (snakeDirection) {
-        case 'left':
-            snakeHeadPosition.x--;
-            break;
-        case 'up':
-            snakeHeadPosition.y--;
-            break;
-        case 'right':
-            snakeHeadPosition.x++;
-            break;
-        case 'down':
-            snakeHeadPosition.y++;
-            break;
+    // create the game grid
+    const createGrid = (dimension=[5,5]) =>{
+        const grid = []
+        for (let row = 0; row < dimension[0]; row ++){
+            const rowArray = []
+            for (let column = 0; column < dimension[1]; column ++ ){
+                rowArray.push(0)
+            }
+            grid.push(rowArray)
+        }
+        return grid
     }
 
-    // Update the snake's head position on the grid
-    const snakeHead = document.querySelector('.snake-head');
-    snakeHead.style.gridColumn = snakeHeadPosition.x;
-    snakeHead.style.gridRow = snakeHeadPosition.y;
-
-     // Check for collision with food
-     if (snakeHeadPosition.x === foodPosition.x && snakeHeadPosition.y === foodPosition.y) {
-        // Remove the food element
-        const food = document.querySelector('.food');
-        food.parentNode.removeChild(food);
-
-        // Generate a new position for the food
-        foodPosition = getRandomPosition();
+    // render the game board
+    const renderGameBoard = (gridDimension, grid) => {
         
-        // Increase the snake's length by adding a new body segment
-        const newBodySegment = document.createElement('div');
-        newBodySegment.classList.add('cell', 'snake-body'); // Add the 'snake-body' class for styling
-    
-        // Calculate the position for the new body segment based on the direction
-        let newSegmentPosition = { x: snakeHeadPosition.x, y: snakeHeadPosition.y };
-        switch (snakeDirection) {
-            case 'left':
-                newSegmentPosition.x++;
-                break;
-            case 'up':
-                newSegmentPosition.y++;
-                break;
-            case 'right':
-                newSegmentPosition.x--;
-                break;
-            case 'down':
-                newSegmentPosition.y--;
-                break;
-        }
-    
-        // Update the new body segment's position
-        newBodySegment.style.gridColumn = newSegmentPosition.x;
-        newBodySegment.style.gridRow = newSegmentPosition.y;
-    
-        // Add the new segment to the snake's body
-        snakeBody.push(newSegmentPosition);
-    
-        // Append the new body segment to the game board
-        gameBoard.appendChild(newBodySegment);
-    }
-    
-}
-/// end of function
-   
-      // Function to start the game loop
-      function startGame() {
-        if (!isGameRunning) {
-            isGameRunning = true;
-            setInterval(updateSnakePosition, 200); // Adjust the interval as needed (in milliseconds)
-        }
+        // remove game board and re-render on every move
+        document.getElementById("game-board").remove();
+        let gameBoard = document.createElement("div");
+        gameBoard.setAttribute("id", "game-board")
+        document.body.appendChild(gameBoard);
+
+        grid.map((rows)=>{
+            rows.map((column) => {
+                let element = document.createElement("div")
+                if (column == 0)
+                    element.setAttribute("class", "grid")
+                if (column == 1)
+                    element.setAttribute("class", "snake")
+                if (column == 2)
+                    element.setAttribute("class", "food")
+                gameBoard.appendChild(element)
+            })
+        })
+
+        // set grid styling for each item type
+        Array.from(["grid", "snake", "food"]).map((grid)=>{
+            const gridItems = document.getElementsByClassName(grid)
+            Array.from(gridItems).map((grid) => grid.style.width = `${500/gridDimension[0]}px`);
+            Array.from(gridItems).map((grid) => grid.style.height = `${500/gridDimension[1]}px`);
+        })
     }
 
-   // Event listener for arrow key presses to change the snake's direction and start the game
-   document.addEventListener('keydown', (event) => {
-    if (!isGameRunning) {
-        startGame();
+    // update the grid with the food position
+    const updateFoodPosition = (foodPosition) =>{
+        grid[foodPosition[0]][foodPosition[1]] = 2
+        return grid
     }
 
-    switch (event.key) {
-        case 'ArrowLeft':
-            snakeDirection = 'left';
-            break;
-        case 'ArrowUp':
-            snakeDirection = 'up';
-            break;
-        case 'ArrowRight':
-            snakeDirection = 'right';
-            break;
-        case 'ArrowDown':
-            snakeDirection = 'down';
-            break;
+    // detect collision with food
+    const snakeHasFoundFood = (snakePosition, foodPosition) =>{
+        return (
+            snakePosition[0] == foodPosition[0] &&
+            snakePosition[1] == foodPosition[1]
+        )
     }
-});
+
+    // update snake length when it finds food
+    const updateSnakeLength = (snakePosition) =>{
+        console.log(snakePosition)
+        grid[snakePosition[0]][snakePosition[1]] = 1
+        snakeBody.push(snakePosition)
+    }
+
+    // generate the position for the food
+    // check for the available positions were the snakes body is not present
+    const generateNewFoodPosition = () =>{
+        const availableLocations = []
+        for (const indexOfRow in grid){
+            for (const indexOfColumn in grid[indexOfRow]){
+                const gridValue = (grid[indexOfRow][indexOfColumn])
+                if (gridValue === 0)
+                    availableLocations.push([indexOfRow, indexOfColumn])
+            }
+        }
+        const randomSelection = Math.floor(Math.random() * availableLocations.length) + 1
+        return availableLocations[randomSelection]
+    }    
+
+    // update snake position
+    const updateSnakePosition = (newBody, currentSnakeLength) => {
+        const selfCollision = snakeBody.filter((coord) => coord[0] === newBody[0] && coord[1] === newBody[1]);
+    
+        if (selfCollision.length >= 1 || newBody[0] < 0 || newBody[0] > gridDimension[0] - 1 || newBody[1] < 0 || newBody[1] > gridDimension[1] - 1) {
+            displayGameOverModal();
+            return;
+        }
+        // detect snake collision with itself
+
+        
+        if (selfCollision.length >= 1){
+            alert ("oops you ate yourself... game over.")
+            window.location.reload();
+            return;
+        }        
+
+        if (newBody[0] < 0 || newBody[0] > gridDimension[0]-1){
+            alert("cannot leave game space.. game over.")
+            window.location.reload();
+        }
+
+        if (newBody[1] < 0 || newBody[1] > gridDimension[1]-1){
+            alert("cannot leave game space.. game over.")
+            window.location.reload();
+        }        
+
+        console.log("before update", snakeBody)
+        snakeBody.splice(0,0,newBody)
+        
+        const updatedSnakePosition = snakeBody.slice(0,currentSnakeLength)
+        updatedSnakePosition.forEach((coord)=>{
+            grid[coord[0]][coord[1]] = 1
+        })
+        
+        const discardedSnakePosition = snakeBody.slice(currentSnakeLength,)
+        console.log("snake body part to remove", discardedSnakePosition)
+        discardedSnakePosition.forEach((coord)=>{
+            grid[coord[0]][coord[1]] = 0
+        })
+        
+        snakeBody = updatedSnakePosition
+        console.log("after update", snakeBody)
+    }
+
+    function displayGameOverModal() {
+        const modal = document.getElementById("game-over-modal");
+        modal.style.display = "block";
+    
+        const restartButton = document.getElementById("restart-button");
+        restartButton.addEventListener("click", () => {
+            // Reload or restart your game here
+            window.location.reload(); // reload the page
+
+            // Update high score if the current score is higher
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('highScore', highScore);
+            updateHighScore(highScore); // Update the high score element
+        }
+        });
+    }
+
+    // update score of the game
+    const updateScore = (score) =>{
+        parseInt(document.getElementById("current-score").innerHTML=
+        `Current score is: ${score}`)
+    }
+    // Update high score element
+
+        // Initialize high score from local storage
+    let highScore = parseInt(localStorage.getItem('highScore')) || 0;
+
+    // Update high score element
+    const highScoreElement = document.getElementById("high-score");
+    highScoreElement.innerHTML = `High Score: ${highScore}`;
+
    
-   
-   
-   
-  
-});
+
+    // STARTING THE GAME //
+    grid = createGrid(gridDimension) // create game grid
+    console.log(grid);
+    
+    updateSnakePosition([4,4], 1) //initialize snake position
+    console.log([4,4])
+
+    foodPosition = generateNewFoodPosition(gridDimension) // get new food position
+    updateFoodPosition(foodPosition) // initialize food position
+
+    renderGameBoard(gridDimension, grid) // render the game and characters on screen
+    updateScore(score) // initialize score
+
+    // this function manages the game state.
+    const manageGameState = (newHeadPositionOfSnake) =>{
+
+        const lastKnownPosition = snakeBody.at(-1)
+        updateSnakePosition(newHeadPositionOfSnake, snakeBody.length)
+        renderGameBoard(gridDimension, grid)
+        if (snakeHasFoundFood(newHeadPositionOfSnake, foodPosition)) {
+            updateSnakeLength(lastKnownPosition)
+            foodPosition = generateNewFoodPosition(gridDimension)
+            updateFoodPosition(foodPosition)
+            updateScore(score+=1)
+        }
+        console.log(grid)
+        renderGameBoard(gridDimension, grid)      
+    }
+
+    // Monitor snake movement.
+    function moveSnake() {
+        if (!gameStarted) {
+            return; // Stop moving if the game hasn't started yet
+        }
+
+        let newHeadPositionOfSnake;
+        
+        if (activeDirection === "up") {
+            // Calculate the new position for the snake if moving up
+            newHeadPositionOfSnake = [snakeBody[0][0] - 1, snakeBody[0][1]];
+        } else if (activeDirection === "down") {
+            // Calculate the new position for the snake if moving down
+            newHeadPositionOfSnake = [snakeBody[0][0] + 1, snakeBody[0][1]];
+        } else if (activeDirection === "left") {
+            // Calculate the new position for the snake if moving left
+            newHeadPositionOfSnake = [snakeBody[0][0], snakeBody[0][1] - 1];
+        } else if (activeDirection === "right") {
+            // Calculate the new position for the snake if moving right
+            newHeadPositionOfSnake = [snakeBody[0][0], snakeBody[0][1] + 1];
+        }
+        
+        manageGameState(newHeadPositionOfSnake);
+    }
+    
+    // Call moveSnake function every specified interval (snakeSpeed)
+    const snakeMovementInterval = setInterval(moveSnake, snakeSpeed);
+
+    // Start the game when any arrow key is pressed
+    document.addEventListener("keydown", (e) => {
+        if (!gameStarted) {
+            gameStarted = true; // Set the game as started
+        }
+        if (e.key === "ArrowUp" && activeDirection !== "down") {
+            activeDirection = "up";
+        } else if (e.key === "ArrowDown" && activeDirection !== "up") {
+            activeDirection = "down";
+        } else if (e.key === "ArrowLeft" && activeDirection !== "right") {
+            activeDirection = "left";
+        } else if (e.key === "ArrowRight" && activeDirection !== "left") {
+            activeDirection = "right";
+        }
+    });
+
+}, false);

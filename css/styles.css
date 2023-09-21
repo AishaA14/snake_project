@@ -1,33 +1,188 @@
-/* Basic styling for the game board */
-.game-board {
-    display: grid;
-    grid-template-columns: repeat(30, 20px); /* Increase the number of columns and adjust cell size */
-    grid-template-rows: repeat(30, 20px); /* Increase the number of rows and adjust cell size */
-    gap: 1px; /* Gap between cells */
-    width: 740px; /* Adjust the board's width based on cell size and number of columns */
-    height: 600px; /* Adjust the board's height based on cell size and number of rows */
-    margin: 0 auto;
-    border: 1px solid #000; /* Add a border around the entire game board */
-    background-color: #f0f0f0;
+body {
+    background-color: white;
 }
+/* .game-board {
+    display: grid;
+    grid-template-columns: repeat(30, 20px);
+    grid-template-rows: repeat(30, 20px);
+    gap: 1px;
+    width: 740px;
+    height: 650px;
+    margin: 0 auto;
+    border: 1px solid #000;
+    background: lightblue; /* Gradient background */
+/* }
 
-/* Style for individual cells */
 .cell {
     width: 100%;
     height: 100%;
     background-color: #fff;
-    border: 1px solid #ccc; /* Add a border to each cell to create visible lines */
-}
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Box shadow for a 3D effect */
+/* } */
 
-/* Style for the snake's head */
-.snake-head {
+/* .snake {
     background-color: #00f;
-}
+} */
 
-.snake-body {
-    background-color: #00f;
-}
-
-.food {
+/* .food {
     background-color: red;
+    border-radius: 50%;
+}
+
+/* Add this to your CSS */
+/* .game-over-message {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+    color: #fff;
+    z-index: 2;
+} */ 
+
+/* .game-over-message p {
+    margin: 0;
+    font-size: 24px;
+}
+
+.game-over-message button {
+    background-color: #00f;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+} */
+
+/* .game-over-message button:hover {
+    background-color: #007;
+} */ 
+
+#game-board {
+    position: relative;
+    top: 30px;
+    outline: 2px solid #000;
+    font-size: 0;
+    margin: auto;
+    height: 500px;
+    width: 500px;
+    padding: 0;
+    border: none;
+    perspective: 1000px; /* Add perspective for 3D effect */
+  }
+  
+  .grid,
+  .snake,
+  .food {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    display: inline-block;
+    transition: all 0.3s ease; /* Add transition for smooth animations */
+  }
+  
+  .grid {
+    background-color: black;
+    transform: translateZ(0); /* Apply a 3D transformation */
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3); /* Add a box shadow */
+  }
+  
+  /* .snake {
+    background-color: blue;
+    transform: translateZ(0);
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+  } */
+  /* Neon glow for snake */
+.snake {
+    background-color: #00ff00; /* Neon green color */
+    box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; /* Glowing effect */
+}
+
+/* Neon glow for food */
+.food {
+    background-color: #ff00ff; /* Neon magenta color */
+    box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff; /* Glowing effect */
+}
+
+  /* .food {
+    background-color: red;
+    transform: translateZ(0);
+    box-shadow: 5px 5px 10px grey;
+    border-radius: 50%;
+  } */
+  
+  /* Add hover effect */
+  .grid:hover,
+  .snake:hover,
+  .food:hover {
+    transform: translateZ(10px); /* Lift the element on hover */
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5); /* Increase shadow on hover */
+  }
+  
+  /* Style the modal container */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  /* Style the modal content */
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Style the restart button */
+  #restart-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #restart-button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Style the score container */
+.score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333; /* Background color for the score container */
+    color: white; /* Text color */
+    font-size: 18px;
+}
+
+/* Style the current score element */
+#current-score {
+    font-weight: bold; /* Make the current score text bold */
+    border: 2px solid black;
+}
+
+/* Style the high score element */
+#high-score {
+    font-style: italic; /* Make the high score text italic */
 }
