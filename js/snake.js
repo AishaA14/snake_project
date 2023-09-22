@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameStarted = false; // Indicates if the game has started
     let paused = false;
     let gameOver = false;
+    let gameState = "notInPlay";
     
     //* create the game grid
     const createGrid = (dimension=[5,5]) =>{
@@ -125,27 +126,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //* Function to display the instructions modal
     function displayInstructionsModal() {
-        const modal = document.getElementById("instructions-modal");
-        modal.style.display = "block";
+            const modal = document.getElementById("instructions-modal");
+            modal.style.display = "block";
 
-        const startGameButton = document.getElementById("start-game-button");
-        startGameButton.addEventListener("click", () => {
-            modal.style.display = "none"; // Hide the modal
-            // startGame(); // Start the game
-        });
+            const startGameButton = document.getElementById("start-game-button");
+            startGameButton.addEventListener("click", () => {
+                modal.style.display = "none"; // Hide the modal
+                // startGame(); // Start the game
+                // Play the background music
+            const backgroundMusic = document.getElementById("backgroundmusic");
+            backgroundMusic.play();
+
+            // Listen for game over and stop the background music
+            const gameoverModal = document.getElementById("game-over-modal");
+            gameoverModal.addEventListener("click", () => {
+                // Stop the background music
+                backgroundMusic.pause();
+                backgroundMusic.currentTime = 0; // Rewind to the beginning
+            });
+            });
     }
-
-    //* Display the instructions modal when the page loads
-    displayInstructionsModal();
+        // Display the instructions modal when the page loads
+        displayInstructionsModal();
+        
+        //* Display game over modal
     function displayGameOverModal() {
+        gameState = "game_over"; // set the game state to game over
+
+        // Stop the background music
+        const backgroundMusic = document.getElementById("backgroundmusic");
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0; // Rewind to the beginning
+
+    // Play the game over jingle
+    const gameOverSound = document.getElementById("gameOverSound");
+    gameOverSound.play();
+
         const modal = document.getElementById("game-over-modal");
         modal.style.display = "block";
-    
         const restartButton = document.getElementById("restart-button");
         restartButton.addEventListener("click", () => {
             // Reload or restart your game here
             window.location.reload(); // reload the page
-
+            gameState = "playing";
             // Update high score if the current score is higher
         if (score > highScore) {
             highScore = score;
@@ -175,10 +198,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //* STARTING THE GAME //
     grid = createGrid(gridDimension) // create game grid
-    // console.log(grid);
+   
     
     updateSnakePosition([4,4], 1) //initialize snake position
-    // console.log([4,4])
+   
 
     foodPosition = generateNewFoodPosition(gridDimension) // get new food position
     updateFoodPosition(foodPosition) // initialize food position
@@ -198,19 +221,20 @@ document.addEventListener('DOMContentLoaded', function() {
             updateFoodPosition(foodPosition)
             updateScore(score+=1)
         }
-        // console.log(grid)
+       
         renderGameBoard(gridDimension, grid)      
     }
 
     //* Function to toggle the game state (pause/resume)
     function toggleGamePause() {
-        paused = !paused; // Toggle the paused state
-
-        if (paused) {
+        if (gameState === "playing") {
+            gameState = "paused"; // Set the game state to "paused"
             clearInterval(snakeMovementInterval); // Pause the game loop
-        } else {
-            // Resume the game loop
-            snakeMovementInterval = setInterval(moveSnake, snakeSpeed);
+            togglePausedModal(true); // Display the paused modal
+        } else if (gameState === "paused") {
+            gameState = "playing"; // Set the game state to "playing"
+            snakeMovementInterval = setInterval(moveSnake, snakeSpeed); // Resume the game loop
+            togglePausedModal(false); // Hide the paused modal
         }
     }
     function togglePausedModal(paused) {
@@ -220,14 +244,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //* Monitor snake movement.
     function moveSnake() {
-        if (paused) {
-            togglePausedModal(true); // Display "Paused" pop-up when paused
+        if (gameState === "paused") {
             return; // Stop moving if the game is paused
-        } else {
-            togglePausedModal(false); // Hide "Paused" pop-up when resumed
         }
 
-        if (!gameStarted) {
+        if (gameState !== "playing") {
             return; // Stop moving if the game hasn't started yet
         }
 
@@ -255,22 +276,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //* Start the game when any arrow key is pressed
     document.addEventListener("keydown", (e) => {
-        if (!gameStarted) {
-            gameStarted = true; // Set the game as started
-        }
-        if (!gameOver) {
-        if (e.key === "ArrowUp" && activeDirection !== "down") {
-            activeDirection = "up";
-        } else if (e.key === "ArrowDown" && activeDirection !== "up") {
-            activeDirection = "down";
-        } else if (e.key === "ArrowLeft" && activeDirection !== "right") {
-            activeDirection = "left";
-        } else if (e.key === "ArrowRight" && activeDirection !== "left") {
-            activeDirection = "right";
-        }
-        if (e.key === " ") { // Check if the space bar is pressed
-            toggleGamePause(); // Toggle the game pause/resume
-        }
+            if (gameState === "notInPlay") {
+                gameStarted = true; // Set the game as started
+                gameState = "playing";
+            }
+            if (gameState === "playing" && !gameOver) {
+            if (e.key === "ArrowUp" && activeDirection !== "down") {
+                activeDirection = "up";
+            } else if (e.key === "ArrowDown" && activeDirection !== "up") {
+                activeDirection = "down";
+            } else if (e.key === "ArrowLeft" && activeDirection !== "right") {
+                activeDirection = "left";
+            } else if (e.key === "ArrowRight" && activeDirection !== "left") {
+                activeDirection = "right";
+            }
+            if (e.key === " ") { // Check if the space bar is pressed
+                toggleGamePause(); // Toggle the game pause/resume
+            }
         }
     });
 
