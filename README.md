@@ -63,8 +63,9 @@ Clone the repository to your local machine:
 Open your terminal or command prompt and navigate to the directory where you want to store the game on your local machine. 
 Then, use the following command to clone the repository: 
 
+```
 git clone https://github.com/AishaA14/snake_project.git
-
+```
 ## Timeframe & Working Team
 
 I worked independently on this project. I developed this Snake Game over the course of one week.
@@ -114,7 +115,8 @@ To create the game board, I started by defining a grid using HTML and CSS. Here'
 ```html
 <div id="game-board"></div>
 
-``` css
+```
+```css
 #game-board {
     /* Styles for the game board container */
     position: relative;
