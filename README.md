@@ -40,8 +40,6 @@ The Snake Game is a classic arcade game where the player controls a snake that m
 
 [Play the Game](https://aishaa14.github.io/snake_project/snake.html)
 
-Include a link to a live demo of your game (if available) or a video/gif showcasing gameplay.
-
 ## Features
 
 - Classic Snake gameplay experience.
