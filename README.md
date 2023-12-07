@@ -1,6 +1,8 @@
+[Game Screenshot](snake.png)
+
 # Snake Game
 
-[Game Screenshot](snake.png)
+
 
 
 ## Description
