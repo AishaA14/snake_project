@@ -96,10 +96,6 @@ I used Excalidraw, a collaborative whiteboard tool, to create visual sketches an
 
 - **Scoring:** I considered how to keep track of the player's score as they successfully guided the snake to eat food.
 
-### Logic Flow
-
-I also created a flowchart to illustrate the logic flow of the game, including the game loop, player input handling, and win/lose conditions. This visual representation helped me ensure that I had a clear understanding of how all the game's components would come together.
-
 ![Excalidraw Diagram](excalidraw.png)
 
 ## Build/Code Process
