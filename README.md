@@ -19,7 +19,6 @@ The Snake Game is a classic arcade game where the player controls a snake that m
 - [Planning](#planning)
   - [Initial Steps](#initial-steps)
   - [Sketches and Diagrams](#sketches-and-diagrams)
-  - [Logic Flow](#logic-flow)
 - [Build/Code Process](#buildcode-process)
   - [Setting Up the Game Board](#setting-up-the-game-board)
   - [Handling Snake Movement](#handling-snake-movement)
