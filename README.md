@@ -1,10 +1,9 @@
-[Game Screenshot](snake.png)
+# snake_project
+![Game Screenshot](snake.png)
 
 # Snake Game
 
-
-
-
+![Game Screenshot](screenshot.png)
 ## Description
 
 The Snake Game is a classic arcade game where the player controls a snake that moves around the game board, eating food to grow while avoiding collisions with walls and its own body. This project implements the Snake Game using HTML, CSS, and JavaScript.
