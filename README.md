@@ -1,9 +1,7 @@
-# snake_project
-![Game Screenshot](snake.png)
-
 # Snake Game
 
-![Game Screenshot](screenshot.png)
+[Game Screenshot](snake.png)
+
 
 ## Description
 
